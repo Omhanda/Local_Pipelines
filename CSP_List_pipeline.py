@@ -28,7 +28,7 @@ warehouse_cursor = conn.cursor()
 warehouse_cursor.fast_executemany = True
 
 # Path to your downloaded key
-service_acc_key = "cool-ocean-477314-v4-c7ffb11c1359.json"
+service_acc_key = os.environ.get("gcp_bot_key")
 
 # Define the required scopes
 SCOPES = [
