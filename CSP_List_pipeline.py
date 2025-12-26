@@ -54,6 +54,8 @@ column = [column[0] for column in warehouse_cursor.description]
 
 csp_master_df = pd.DataFrame(rows_tuple, columns=column)
 
+print(f"CSP_Master Records --> {len(csp_master_df)} \nNew CSP Records --> {len(csp_df)} \n")
+
 # TRANSFORMATIONS
 csp_df['PINCODE'] = pd.to_numeric(csp_df['PINCODE'], errors='coerce').fillna(0).astype('int')
 csp_df['MATM'] = pd.to_numeric(csp_df['MATM'], errors='coerce').fillna(0).astype('int')
@@ -141,6 +143,8 @@ csp_master_df['CSPCODE'] = csp_master_df['CSPCODE'].astype(str).str.strip()
 # Remove 'Cancelled' and 'TBA' entries from csp_master_df
 csp_master_df_1 = csp_master_df[~csp_master_df['CSPCODE'].isin(['Cancelled', 'TBA'])]
 
+csp_master_df_1 = csp_master_df_1.drop_duplicates()
+
 # Joining CSP DataFrames
 csp_1 = pd.merge(csp_df, csp_master_df_1, left_on='CSPCODE', right_on = 'CSPCODE', how='left')
 
@@ -196,16 +200,60 @@ csp_1[date_cols] = csp_1[date_cols].fillna('2000-01-01')
 
 csp_1['Key'] = csp_1['Key'].fillna('')
 
-warehouse_cursor.execute("TRUNCATE TABLE WAVE..CSP_Master")
+csp_1 = csp_1.drop_duplicates()
+
+backup = warehouse_cursor.execute('''
+                        USE WAVE
+                                  
+                        TRUNCATE TABLE CSP_Master
+                                  
+                        INSERT INTO CSP_Master_tmp
+                            SELECT
+                            [BANK]
+                            ,[CSPCODE]
+                            ,[CSP_Name]
+                            ,[Key]
+                            ,[State]
+                            ,[Territory]
+                            ,[District]
+                            ,[BLOCK]
+                            ,[bhk_block_code]
+                            ,[Status]
+                            ,[Branch]
+                            ,[PINCODE]
+                            ,[Code_Creation_Date]
+                            ,[Agreement_Date]
+                            ,[Agreement_Renewal_Date]
+                            ,[IIBF_Certificate_Number]
+                            ,[Printer]
+                            ,[MATM]
+                            ,[PinPad]
+                            ,[Licence_Fee_Amount]
+                            ,[MR_Date]
+                            ,[MR_No]
+                            ,[Received_Amount]
+                            ,[Vatika_ID]
+                            ,[Vatika_Name]
+                            FROM [CSP_Master]
+                                  
+                            TRUNCATE TABLE [CSP_Master]
+                        ''')
+
 conn.commit()
+
+if backup:
+    print("CSP_Master Backup Created Successfully...!\n")
 
 warehouse_cursor.execute("SELECT * FROM WAVE..CSP_Master")
 rows_tuple = [tuple(i) for i in warehouse_cursor.fetchall()]
 column = [column[0] for column in warehouse_cursor.description]
 csp_master_df_check = pd.DataFrame(rows_tuple, columns=column)
+conn.commit()
 
 if len(csp_master_df_check) == 0:
     print(f"CSP_Master Truncated...! {len(csp_master_df_check)} Records Found")
+else:
+    print(f"{len(csp_master_df_check)} Records Found")
 
 # INSERTING DATA INTO WAREHOUSE
 table_name = "CSP_Master"  # Replace with your actual table name
