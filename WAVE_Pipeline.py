@@ -13,7 +13,6 @@ from dotenv import load_dotenv , find_dotenv # to load .env files
 # client = storage.Client()
 load_dotenv()
 
-
 warehouse_servr = os.environ.get("DB1_HOST")
 warehouse_user = os.environ.get("DB1_USER")
 warehouse_pass = os.environ.get("DB1_PASS")
@@ -86,10 +85,11 @@ wave_sheet_1 = wave_sheet.worksheet('Sheet1')
 wave_sheet_df = pd.DataFrame(wave_sheet_1.get_all_records())
 
 warehouse_cursor.execute("SELECT * FROM WAVE..[Wave_Progress_2]")
-
 rows_tuple = [tuple(i) for i in warehouse_cursor.fetchall()]
 column = [column[0] for column in warehouse_cursor.description]
 wave_progress_df = pd.DataFrame(rows_tuple, columns=column)
+
+print(f'''Old Wave Records {len(wave_progress_df)}\nNew Wave Records {len(wave_sheet_df)}''')
 
 prod_server = os.environ.get("DB2_HOST")
 prod_user = os.environ.get("DB2_USER")     
