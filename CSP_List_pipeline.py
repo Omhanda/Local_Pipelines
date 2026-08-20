@@ -10,10 +10,10 @@ from dotenv import load_dotenv , find_dotenv # to load .env files
 
 load_dotenv()
 
-warehouse_servr = os.environ.get("DB1_HOST")
-warehouse_user = os.environ.get("DB1_USER")
-warehouse_pass = os.environ.get("DB1_PASS")
-warehouse_db = os.environ.get("DB1_NAME") 
+warehouse_servr = os.environ.get("DB2_HOST")
+warehouse_user = os.environ.get("DB2_USER")
+warehouse_pass = os.environ.get("DB2_PASS")
+warehouse_db = os.environ.get("DB2_NAME") 
 
 conn = pyodbc.connect(
             f"Driver={{ODBC Driver 17 for SQL Server}};"
@@ -58,12 +58,14 @@ print(f"CSP_Master Records --> {len(csp_master_df)} \nNew CSP Records --> {len(c
 
 # TRANSFORMATIONS
 csp_df['PINCODE'] = pd.to_numeric(csp_df['PINCODE'], errors='coerce').fillna(0).astype('int')
-csp_df['MATM'] = pd.to_numeric(csp_df['MATM'], errors='coerce').fillna(0).astype('int')
-csp_df['PinPad'] = pd.to_numeric(csp_df['PinPad'], errors='coerce').fillna(0).astype('int')
+# csp_df['MATM'] = pd.to_numeric(csp_df['MATM'], errors='coerce').fillna(0).astype('int')
+# csp_df['PinPad'] = pd.to_numeric(csp_df['PinPad'], errors='coerce').fillna(0).astype('int')
 csp_df['Vatika ID'] = pd.to_numeric(csp_df['Vatika ID'], errors='coerce').fillna(0).astype('int')
 csp_df['MR No.'] = pd.to_numeric(csp_df['MR No.'], errors='coerce').fillna(0).astype('int')
 csp_df['Licence Fee\n Amount'] = pd.to_numeric(csp_df['Licence Fee\n Amount'], errors='coerce').fillna(0.0)
 csp_df['Received Amount'] = pd.to_numeric(csp_df['Received Amount'], errors='coerce').fillna(0.0)
+csp_df['Refund Amount'] = pd.to_numeric(csp_df['Refund Amount'], errors='coerce').fillna(0.0)
+csp_df['Tenure'] = pd.to_numeric(csp_df['Tenure'], errors='coerce').fillna(0.0)
 
 fill_values = {
     'BANK': "",
@@ -82,7 +84,12 @@ fill_values = {
     'IIBF Certificate\nNumber': "",
     'Printer': "",
     'MR Date': '1999-01-01',
-    'Vatika Name': ""
+    'Vatika Name': "",
+    'Licence_Fee_Refund_Date': '1999-01-01',
+    'Employee\nMapped': "",
+    'Gender': "",
+    'Location Type': "",
+    'Productive\nStatus': "",
 }
 
 for col, default_value in fill_values.items():
@@ -106,8 +113,9 @@ dtype_map = {
     'Agreement Renewal Date': 'datetime64[ns]',
     'IIBF Certificate\nNumber': 'object',
     'Printer': 'object',
-    'MATM': 'int',
-    'PinPad': 'int',
+    'Licence_Fee_Refund_Date': 'datetime64[ns]',
+    # 'MATM': 'int',
+    # 'PinPad': 'int',
     'Licence Fee\n Amount': 'float',
     'MR Date': 'datetime64[ns]',
     'MR No': 'int',
@@ -135,6 +143,7 @@ csp_df['MR Date'] = pd.to_datetime(csp_df['MR Date'])
 # csp_df['Licence Fee Amount'] = csp_df['Licence Fee Amount'].astype('float')
 csp_df['Received Amount'] = csp_df['Received Amount'].astype('float') 
 csp_df['Vatika ID'] = csp_df['Vatika ID'].astype('int')
+csp_df['Licence_Fee_Refund_Date'] = pd.to_datetime(csp_df['Licence_Fee_Refund_Date'], errors='coerce')
 
 # Trimming Keys
 csp_df['CSPCODE'] = csp_df['CSPCODE'].astype(str).str.strip()
@@ -152,8 +161,10 @@ csp_1 = pd.merge(csp_df, csp_master_df_1, left_on='CSPCODE', right_on = 'CSPCODE
 csp_1 = csp_1[['BANK_x', 'CSPCODE', 'CSP Name', 'State_x', 'Territory_x', 'District_x',
        'BLOCK_x', 'bhk_block_code', 'Status_x', 'Branch_x', 'PINCODE_x', 'Code Creation Date',
        'Agreement Date', 'Agreement Renewal Date', 'IIBF Certificate\nNumber',
-       'Printer_x', 'MATM_x', 'PinPad_x', 'Licence Fee\n Amount', 'MR Date',
-       'MR No.', 'Received Amount', 'Vatika ID', 'Vatika Name','Key']]
+       'Printer_x', 'Licence Fee\n Amount', 'MR Date',
+       'MR No.', 'Received Amount', 'Vatika ID', 'Vatika Name','Key','Refund Amount', 'Licence_Fee_Refund_Date_x',
+       'Employee\nMapped', 'Gender_x', 'Location Type', 'Tenure_x',
+       'Productive\nStatus','MATM/PINPAD', 'GPS-Dongle']]
 
 csp_1 = csp_1.rename(columns={
     'BANK_x' : 'BANK',
@@ -177,12 +188,22 @@ csp_1 = csp_1.rename(columns={
     'Received Amount': 'Received_Amount',
     'Vatika ID': 'Vatika_ID',
     'Vatika Name': 'Vatika_Name',
-    'Status_x': 'Status'
+    'Status_x': 'Status',
+    'Refund Amount': 'Refund_Amount',
+    'Licence_Fee_Refund_Date_x': 'Licence_Fee_Refund_Date',
+    'Employee\nMapped': 'Employee_Mapped', 
+    'Gender_x': 'Gender', 
+    'Location Type': 'Location_Type', 
+    'Tenure_x': 'Tenure',
+    'Productive\nStatus': 'Productive_Status',
+    'MATM/PINPAD': 'MATM_PINPAD', 
+    'GPS-Dongle': 'GPS_Dongle'
     # Any extra columns (Refund Amount, Employee Mapped etc.) will remain
 })
 
 # Replacing NULL Values
-csp_1['bhk_block_code'] = csp_1['bhk_block_code'].fillna(0)
+# csp_1['bhk_block_code'] = csp_1['bhk_block_code'].fillna('0')
+csp_1['bhk_block_code'] = pd.to_numeric(csp_1['bhk_block_code'],errors='coerce').fillna(0)
 csp_1['bhk_block_code'] = csp_1['bhk_block_code'].astype(int)
 
 # csp_1['Code_Creation_Date'].fillna('2000-01-01', inplace=True)
@@ -194,9 +215,10 @@ date_cols = [
     'Code_Creation_Date',
     'Agreement_Date',
     'Agreement_Renewal_Date',
-    'MR_Date'
+    'MR_Date',
+    'Licence_Fee_Refund_Date'
 ]
-csp_1[date_cols] = csp_1[date_cols].fillna('2000-01-01')
+csp_1[date_cols] = csp_1[date_cols].fillna('1999-01-01')
 
 csp_1['Key'] = csp_1['Key'].fillna('')
 
@@ -204,8 +226,6 @@ csp_1 = csp_1.drop_duplicates()
 
 backup = warehouse_cursor.execute('''
                         USE WAVE
-                                  
-                        TRUNCATE TABLE CSP_Master
                                   
                         INSERT INTO CSP_Master_tmp
                             SELECT
@@ -234,6 +254,7 @@ backup = warehouse_cursor.execute('''
                             ,[Received_Amount]
                             ,[Vatika_ID]
                             ,[Vatika_Name]
+                            ,GETDATE() create_date
                             FROM [CSP_Master]
                                   
                             TRUNCATE TABLE [CSP_Master]
@@ -275,6 +296,7 @@ try:
         records = [tuple(row) for _, row in batch.iterrows()]
         
         print(f"Executing batch insert for records {i} to {i + len(records)}")
+        warehouse_cursor.fast_executemany = True
         warehouse_cursor.executemany(insert_query, records)
         
         total_inserted += len(records)

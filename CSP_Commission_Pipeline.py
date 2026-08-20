@@ -9,26 +9,25 @@ from gspread_dataframe import get_as_dataframe
 from dotenv import load_dotenv , find_dotenv # to load .env files
 load_dotenv()
 
-# Warehouse connection
-warehouse_servr = os.environ.get("DB1_HOST")
-warehouse_user = os.environ.get("DB1_USER")
-warehouse_pass = os.environ.get("DB1_PASS")
-warehouse_db = os.environ.get("DB1_NAME") 
+# prod connection
+prod_servr = os.environ.get("DB2_HOST")
+prod_user = os.environ.get("DB2_USER")
+prod_pass = os.environ.get("DB2_PASS")
+prod_db = os.environ.get("DB2_NAME") 
 
 conn = pyodbc.connect(
             f"Driver={{ODBC Driver 17 for SQL Server}};"
-            f"Server={warehouse_servr};"  # Warehouse server
-            f"Database={warehouse_db};"  # Warehouse database
-            f"UID={warehouse_user};"
-            f"PWD={warehouse_pass};"
+            f"Server={prod_servr};"  # prod server
+            f"Database={prod_db};"  # prod database
+            f"UID={prod_user};"
+            f"PWD={prod_pass};"
         )
 
-warehouse_cursor = conn.cursor()
+prod_cursor = conn.cursor()
 
-warehouse_cursor.fast_executemany = True
 
 # insert function
-def bulk_insert(table_name, data, batch_size):
+def bulk_insert(table_name, data, batch_size , cursor):
     try:
         columns = data.columns.tolist()
         # columns_str = ', '.join(columns)
@@ -44,21 +43,22 @@ def bulk_insert(table_name, data, batch_size):
             records = [tuple(row) for _, row in batch.iterrows()]
             
             print(f"Executing batch insert for records {i} to {i + len(records) - 1}")
-            warehouse_cursor.executemany(insert_query, records)
+            cursor.fast_executemany = True
+            cursor.executemany(insert_query, records)
             
             total_inserted += len(records) 
             print(f"Inserted batch: {total_inserted}/{len(data)} records")
                 
         
         print(f"✓ Successfully inserted all {total_inserted} records into {table_name}")
-        conn.commit()
+        cursor.connection.commit()
         # conn.close()  
     except Exception as e:
         # conn.rollback()
         print(f"✗ Error inserting data: {str(e)}")
         
     # finally:
-    #     warehouse_cursor.close()
+    #     prod_cursor.close()
     #     conn.close()
 
 # downloaded GCP key
@@ -90,25 +90,26 @@ comm_sheet_df['Count'] = pd.to_numeric(comm_sheet_df['Count'], errors='coerce').
 
 
 # tmp_csp_commission
-warehouse_cursor.execute("SELECT TOP(10) * FROM WAVE..tmp_csp_commission ORDER BY id DESC")
-rows_tuple = [tuple(i) for i in warehouse_cursor.fetchall()]
-column = [column[0] for column in warehouse_cursor.description]
+prod_cursor.execute("SELECT TOP(10) * FROM WAVE..tmp_csp_commission ORDER BY id DESC")
+rows_tuple = [tuple(i) for i in prod_cursor.fetchall()]
+column = [column[0] for column in prod_cursor.description]
 tmp_csp_commission_df = pd.DataFrame(rows_tuple, columns=column)
 
 
 # CSP Logs
-warehouse_cursor.execute("SELECT * FROM WAVE..COMMISSION_Update_log")
-rows_tuple = [tuple(i) for i in warehouse_cursor.fetchall()]
-column = [column[0] for column in warehouse_cursor.description]
+prod_cursor.execute("SELECT * FROM WAVE..COMMISSION_Update_log")
+rows_tuple = [tuple(i) for i in prod_cursor.fetchall()]
+column = [column[0] for column in prod_cursor.description]
 commission_log_df = pd.DataFrame(rows_tuple, columns=column)
 
 # Selecting Updated Data to be Inserted
-commission_log_df = pd.DataFrame([{
-    "last_update_date": comm_sheet_df['Last Update'].max(),"table_name": "CSP_Commission"}])
+# commission_log_df = pd.DataFrame([{
+#     "last_update_date": comm_sheet_df['Last Update'].max(),"table_name": "CSP_Commission"}])
 
-mx_1 = commission_log_df[commission_log_df['table_name'] == 'CSP_Commission']
+mx_1 = commission_log_df[commission_log_df['table_name'] == 'CSP_Commission'].copy()
 
-comm_sheet_df_1 = comm_sheet_df[comm_sheet_df['Last Update'] > mx_1['last_update_date'].max()]
+comm_sheet_df_1 = comm_sheet_df[comm_sheet_df['Last Update'] > pd.to_datetime(mx_1['last_update_date'].max().strftime('%Y-%m-%d'))]
+# comm_sheet_df_1 = comm_sheet_df[comm_sheet_df['Last Update'] > mx_1['last_update_date'].max()]
 
 
 # Adding New Columns
@@ -122,7 +123,7 @@ comm_sheet_df_1['error_in_process'] = 0
 comm_sheet_df_1 = comm_sheet_df_1[['Comm_Month', 'Accounting_Month', 'Bank', 'CSP_Code', 'State',
        'Territorry', 'District', 'Comm_Pena', 'Revenue_Category',
        'Revenue_Head', 'Count', 'Comm', 'Tag', 'imported_by', 'imported_at',
-       'is_processed', 'error_in_process']]
+       'is_processed', 'error_in_process']].copy()
 
 
 # Inserting Data into tmp_csp_commission
@@ -130,21 +131,27 @@ table_name = "tmp_csp_commission"
 batch_size = 1000
 idf = comm_sheet_df_1
 
-bulk_insert(table_name, idf, batch_size)
+bulk_insert(table_name, idf, batch_size, prod_cursor)
 
 
 # running procedure to insert into final table
 insert_date = datetime.now().strftime('%Y-%m-%d')
-warehouse_cursor.execute(f'''
+prod_cursor.execute(f'''
                          USE WAVE;
                          exec sp_Insert_into_CSP_Commission '{insert_date}'
                          ''')
 conn.commit()
 
+commission_log_df = pd.DataFrame([{
+    "last_update_date": comm_sheet_df['Last Update'].max(),
+    "table_name": "CSP_Commission",         
+    "inserted_on": insert_date
+}])
 
 # Inserting Data into COMMISSION_Update_log
 table_name = "COMMISSION_Update_log" 
 batch_size = 1000
 idf = commission_log_df
 
-bulk_insert(table_name, idf, batch_size)
+bulk_insert(table_name, idf, batch_size , prod_cursor)
+

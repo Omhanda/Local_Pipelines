@@ -1,0 +1,79 @@
+❌ Row 1 failed : Sunita
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  f9b2b96c-65ab-421d-b12e-7bb0ee41c7e0."}}
+✅ Row 2 created : Jyoti
+✅ Row 3 created : Nirada
+✅ Row 4 created : Nikumoni
+✅ Row 5 created : Momi
+✅ Row 6 created : Dulal
+✅ Row 7 created : Rama
+✅ Row 8 created : Urmila
+✅ Row 9 created : Darshana
+✅ Row 10 created : Tanisha
+❌ Row 11 failed : RAHUL GOLE
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  5a56e8ff-61aa-4c2f-ab30-197c02722abb."}}
+✅ Row 12 created : Anita
+✅ Row 13 created : Rutuja
+✅ Row 14 created : Saruwar
+✅ Row 15 created : Mahaboob
+✅ Row 16 created : Khaleda
+✅ Row 17 created : Nilam
+✅ Row 18 created : Usha
+❌ Row 19 failed : Sumitra Devi
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  11b53bea-d492-49d3-99f8-ec14ebb3d0ea."}}
+✅ Row 20 created : Usha
+❌ Row 21 failed : Sabitri Ray
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  8462721e-74e0-4777-ab6a-9632379cf146."}}
+❌ Row 22 failed : Vishakha Rahul manwar
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  dc8c0868-d0c1-49ef-81a8-f27672b7fb39."}}
+❌ Row 23 failed : AJIT
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  bb7aae10-cf03-4a8b-8e69-71737ef8016d."}}
+❌ Row 24 failed : Aysha Siddika
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  d92e7a57-0e1c-4cb3-88f0-6d40ed3fca40."}}
+❌ Row 25 failed : Parveen
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  70c3f813-829c-4c04-a639-e4c634ac63c2."}}
+❌ Row 26 failed : Sugambar
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  c7009391-69e1-4da9-9dd2-9c7afc8413c0."}}
+❌ Row 27 failed : Mahesh Kumar Kalita
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  b970a3e8-42ec-4304-af6d-231a81e25457."}}
+❌ Row 28 failed : Amrika bai
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  f209e9b9-e2b1-4a11-a69b-d9b8db7f1e15."}}
+❌ Row 29 failed : Mrinmoyee Narjaree
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  278873d8-febb-44f3-a8ef-bb542dcdc76c."}}
+❌ Row 30 failed : Shital pankaj madhwakar
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  944bd14f-9b1c-4ff7-8e32-d7bba8508952."}}
+❌ Row 31 failed : Raigarh
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  c878d0a1-175c-4d2c-bdaf-9bca781cec47."}}
+❌ Row 32 failed : Subol Biswas
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  ade3f7b3-d343-440a-8a66-3ffabb288118."}}
+❌ Row 33 failed : Rinku Das
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  27cc3275-85ba-43f6-8051-5b74597b4757."}}
+❌ Row 34 failed : Pranami Kaushik
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  eeaa478d-eef6-4962-9328-d63abd7edca5."}}
+❌ Row 35 failed : Rajani
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  865918d9-7ca4-42e1-8b6a-17ab4a30e335."}}
+❌ Row 36 failed : Abhay Pratap Singh
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  ee1ae744-06b2-4796-90ce-77eeeeeece56."}}
+❌ Row 37 failed : Pratima Sha Gupta
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  60f5b4c2-3050-4af7-92bd-f7973a17b55e."}}
+❌ Row 38 failed : Raj Kumar Gupta
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  c44ed31b-1e16-4249-b912-27ea3c7fccfa."}}
+❌ Row 39 failed : Nomita Goswami Mahanta
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  54edd0c4-e254-4a0d-8624-e31f6013fdda."}}
+❌ Row 40 failed : Jayanta Kumar Nath
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  42773037-2345-4571-9c1a-3a79ae7abfd1."}}
+❌ Row 41 failed : DHARMENDRA
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  8c0a1459-6416-44f3-af4e-3e0ce1a1c140."}}
+❌ Row 42 failed : Dalia Das
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  1dd8038e-b209-4c79-babd-abf84a2ae540."}}
+❌ Row 43 failed : Shyamali Mandal
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  fd793022-0352-400f-9844-e17c67210b92."}}
+❌ Row 44 failed : BISHWAJIT BOBORUAH
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  2533c435-3063-47c9-a934-8a35c3357933."}}
+❌ Row 45 failed : Bornali Gogoi
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  2189c7cf-2e98-4459-8127-cdcaf484a3a2."}}
+❌ Row 46 failed : Madhuri ravindra wankhede
+{"error":{"code":"Application_DialogException","message":"State ID must have a value  CorrelationId:  98ba9f7e-a08d-4ccd-ab79-e6220f514aa3."}}
+
+========= SUMMARY =========
+Success: 17
+Failed : 29
