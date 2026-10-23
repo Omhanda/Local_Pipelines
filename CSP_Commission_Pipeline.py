@@ -84,7 +84,8 @@ comm_sheet_df = pd.DataFrame(csp_comm_sheet.worksheet('Sheet1').get_all_records(
 # Transformation
 comm_sheet_df['Comm_Month'] = pd.to_datetime(comm_sheet_df['Comm_Month'])
 comm_sheet_df['Accounting_Month'] = pd.to_datetime(comm_sheet_df['Accounting_Month'])
-comm_sheet_df['Last Update'] = pd.to_datetime(comm_sheet_df['Last Update'])
+# comm_sheet_df['Last Update'] = pd.to_datetime(comm_sheet_df['Last Update'], format='mixed')
+comm_sheet_df["Last Update"] = pd.to_datetime(comm_sheet_df["Last Update"],format="%d-%b-%Y",errors="raise")
 comm_sheet_df['Comm'] = pd.to_numeric(comm_sheet_df['Comm'], errors='coerce').fillna(0).astype('float')
 comm_sheet_df['Count'] = pd.to_numeric(comm_sheet_df['Count'], errors='coerce').fillna(0).astype('int')
 
@@ -103,12 +104,16 @@ column = [column[0] for column in prod_cursor.description]
 commission_log_df = pd.DataFrame(rows_tuple, columns=column)
 
 # Selecting Updated Data to be Inserted
-# commission_log_df = pd.DataFrame([{
-#     "last_update_date": comm_sheet_df['Last Update'].max(),"table_name": "CSP_Commission"}])
 
 mx_1 = commission_log_df[commission_log_df['table_name'] == 'CSP_Commission'].copy()
 
+last_update_date = mx_1['last_update_date'].max()
+
 comm_sheet_df_1 = comm_sheet_df[comm_sheet_df['Last Update'] > pd.to_datetime(mx_1['last_update_date'].max().strftime('%Y-%m-%d'))]
+
+# commission_log_df = pd.DataFrame([{
+#     "last_update_date": comm_sheet_df['Last Update'].max(),"table_name": "CSP_Commission"}])
+
 # comm_sheet_df_1 = comm_sheet_df[comm_sheet_df['Last Update'] > mx_1['last_update_date'].max()]
 
 
@@ -128,7 +133,7 @@ comm_sheet_df_1 = comm_sheet_df_1[['Comm_Month', 'Accounting_Month', 'Bank', 'CS
 
 # Inserting Data into tmp_csp_commission
 table_name = "tmp_csp_commission"  
-batch_size = 1000
+batch_size = 5000
 idf = comm_sheet_df_1
 
 bulk_insert(table_name, idf, batch_size, prod_cursor)
@@ -152,6 +157,8 @@ commission_log_df = pd.DataFrame([{
 table_name = "COMMISSION_Update_log" 
 batch_size = 1000
 idf = commission_log_df
+
+print("\nInserting Data into COMMISSION_Update_log")
 
 bulk_insert(table_name, idf, batch_size , prod_cursor)
 
