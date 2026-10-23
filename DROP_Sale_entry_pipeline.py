@@ -181,6 +181,14 @@ for key, order_df in dhavak_grouped_orders:
             int(qty)
             )
 
+            print("Completing Status_check for Order ID:", order_id)
+
+# Added on 01-09-2026
+            prod_cursor.execute("""
+            UPDATE DROP_DrishteeDhavak..OrderBooking_rrp SET Status_check = 'Completed' WHERE order_id = ?""",
+                        int(order_id)
+            )
+
             prod_cursor.commit()
             conn.commit()
             
@@ -189,10 +197,7 @@ for key, order_df in dhavak_grouped_orders:
     
     prod_cursor.commit()
     conn.commit()
-
 print("\nOrderbooking Data inserted successfully...!")
-
-
 
 #  Import to Dhavak
 
